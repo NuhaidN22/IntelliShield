@@ -1,0 +1,33 @@
+# Data files (too large, download separately)
+data/UNSW-NB15/*.csv
+
+# ML Models (regenerate with train.py)
+ML/models/saved/*.h5
+ML/models/saved/*.pkl
+*.pkl
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Environment
+venv/
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
