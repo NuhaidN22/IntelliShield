@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # ML API Server
+  ml-api:
+    build:
+      context: ..
+      dockerfile: ML/Dockerfile
+    container_name: intellishield-ml-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../ML/models/saved:/app/models/saved
+      - ../data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - intellishield-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Packet Capture (requires --network host on Linux)
+  packet-capture:
+    build:
+      context: ..
+      dockerfile: capture/Dockerfile
+    container_name: intellishield-capture
+    depends_on:
+      - ml-api
+    environment:
+      - ML_API_URL=http://ml-api:8000
+    # Uncomment for Linux (requires elevated privileges)
+    # network_mode: host
+    volumes:
+      - ../logs:/app/logs
+    networks:
+      - intellishield-network
+    # Run as privileged to access network interfaces
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+  # Elasticsearch (Logging)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: intellishield-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - intellishield-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Kibana (Visualization)
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: intellishield-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - intellishield-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  elasticsearch-data:
+    driver: local
+
+networks:
+  intellishield-network:
+    driver: bridge
