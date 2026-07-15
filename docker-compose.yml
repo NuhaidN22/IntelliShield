@@ -1,0 +1,97 @@
+services:
+  # Elasticsearch for storing attack data
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: intellisheild-es
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - cluster.name=intellisheild-cluster
+      - node.name=intellisheild-node-1
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - intellisheild-network
+   # In docker-compose.yml under elasticsearch:
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 60s # Increased from 40s
+
+  # Kibana for visualization
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: intellisheild-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - intellisheild-network
+    healthcheck:
+      test: curl -s http://localhost:5601/api/status >/dev/null || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Python ML Server (FastAPI)
+  ml-server:
+    build:
+      context: ./ML/
+      dockerfile: Dockerfile
+    container_name: intellisheild-ml
+    ports:
+      - "8000:8000"
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./ML/models:/app/models
+    networks:
+      - intellisheild-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+
+  # Go Capture Server
+  go-app:
+    build:
+      context: ./capture
+      dockerfile: Dockerfile
+    container_name: intellisheild-go
+    ports:
+      - "8080:8080"
+    environment:
+      - ML_SERVER_URL=http://ml-server:8000
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+    depends_on:
+      - elasticsearch
+      - ml-server
+    volumes:
+      - ./capture:/app/capture
+    networks:
+      - intellisheild-network
+    restart: unless-stopped
+
+volumes:
+  es_data:
+
+networks:
+  intellisheild-network:
+    driver: bridge

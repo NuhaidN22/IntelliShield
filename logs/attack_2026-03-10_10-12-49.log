@@ -1,0 +1,24 @@
+======================================================================
+IntelliShield Attack Log
+======================================================================
+
+Timestamp: 2026-03-10T10:12:49+05:30
+Confidence: 50.00%
+Ensemble Score: 0.50
+Action Taken: monitored
+
+Attacker IP Addresses:
+  -  (3 packets)
+
+Model Predictions:
+  - dbscan: 50.00%
+  - xgboost: 50.00%
+  - random_forest: 50.00%
+  - isolation_forest: 50.00%
+
+Sample Packets:
+  [1] :443 -> :55381 | 
+  [2] :443 -> :55381 | 
+  [3] :443 -> :55381 | 
+
+======================================================================

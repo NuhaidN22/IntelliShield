@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliShield - AI Network Security System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #2ed573;
+            --bg-dark: #0a0e27;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Particles */
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            filter: blur(1px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Glassmorphism Header */
+        header {
+            background: rgba(10, 14, 39, 0.7);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            filter: drop-shadow(0 0 10px var(--primary));
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Live Status Indicator */
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(46, 213, 115, 0.1);
+            border-radius: 50px;
+            border: 1px solid rgba(46, 213, 115, 0.2);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        /* Hero Section Enhancements */
+        .hero {
+            padding: 100px 0 60px;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #b0b0b0;
+            max-width: 750px;
+            margin: 0 auto 50px;
+        }
+
+        /* Metric Cards Grid */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 80px;
+        }
+
+        .metric-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            transform: translateX(-100%);
+            transition: 0.5s;
+        }
+
+        .metric-card:hover::before { transform: translateX(100%); }
+
+        .metric-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-10px);
+            border-color: var(--primary);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: var(--primary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        /* Modern Links/Action Cards */
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 40px 0;
+        }
+
+        .link-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .link-card:hover {
+            border-color: var(--secondary);
+            background: rgba(118, 75, 162, 0.1);
+        }
+
+        .link-icon-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* Enhanced Architecture Flow */
+        .arch-diagram {
+            background: var(--glass);
+            border-radius: 30px;
+            padding: 50px;
+            border: 1px solid var(--glass-border);
+            margin: 60px 0;
+        }
+
+        .arch-flow-wrapper {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .arch-step {
+            text-align: center;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .step-blob {
+            width: 80px;
+            height: 80px;
+            background: var(--bg-dark);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+            transition: 0.3s;
+        }
+
+        .arch-step:hover .step-blob {
+            background: var(--primary);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        /* Footer / Team */
+        footer {
+            padding: 80px 0 40px;
+            background: #050714;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .team-grid {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .member {
+            background: rgba(255,255,255,0.03);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .arch-flow-wrapper { flex-direction: column; }
+            .metric-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas-bg"></canvas>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <div class="logo-icon">🛡️</div>
+                    <h1>INTELLISHIELD</h1>
+                </a>
+                <div class="status">
+                    <div class="status-dot"></div>
+                    <span>NODE-01 ACTIVE</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h2>Securing Networks with <br><span style="color: var(--primary)">Hybrid Intelligence</span></h2>
+            <p>A sophisticated Intrusion Detection System merging high-performance Go packet sniffing with an ensemble of five AI models for real-time threat neutralization.</p>
+            
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="metric-value">99.3%</div>
+                    <div class="metric-label">Detection Rate</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">&lt;100ms</div>
+                    <div class="metric-label">Neural Latency</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">1.2k</div>
+                    <div class="metric-label">Packets / Sec</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="link-grid">
+            <a href="http://localhost:5601" class="link-card">
+                <div class="link-icon-circle"><i class="fas fa-chart-line"></i></div>
+                <h3>SOC Dashboard</h3>
+                <p>Real-time telemetry and visualization via Kibana integration.</p>
+            </a>
+            <a href="http://localhost:5601/app/dashboards#/view/5972a41a-99fe-4bff-803b-43ec18178176?_g=(filters:!(),refreshInterval:(pause:!t,value:60000),time:(from:now-15m,to:now))" class="link-card">
+                <div class="link-icon-circle"><i class="fas fa-code"></i></div>
+                <h3>API Interface</h3>
+                <p>Interact with the FastAPI ensemble core and model metadata.</p>
+            </a>
+            <a href="https://github.com/YOUR_REPO" class="link-card">
+                <div class="link-icon-circle"><i class="fab fa-github"></i></div>
+                <h3>Source Code</h3>
+                <p>Explore the Go-sniffer and Python ML implementation.</p>
+            </a>
+        </section>
+
+        
+
+        <section class="arch-diagram">
+            <h2 style="text-align: center; margin-bottom: 40px; letter-spacing: 2px;">DATA PIPELINE</h2>
+            <div class="arch-flow-wrapper">
+                <div class="arch-step">
+                    <div class="step-blob"><i class="fas fa-ethernet"></i></div>
+                    <h4>Capture</h4>
+                    <small>Go / Libpcap</small>
+                </div>
+                <div class="fas fa-chevron-right" style="color: var(--glass-border)"></div>
+                <div class="arch-step">
+                    <div class="step-blob"><i class="fas fa-filter"></i></div>
+                    <h4>Extract</h4>
+                    <small>43 Features</small>
+                </div>
+                <div class="fas fa-chevron-right" style="color: var(--glass-border)"></div>
+                <div class="arch-step">
+                    <div class="step-blob"><i class="fas fa-brain"></i></div>
+                    <h4>Classify</h4>
+                    <small>Ensemble ML</small>
+                </div>
+                <div class="fas fa-chevron-right" style="color: var(--glass-border)"></div>
+                <div class="arch-step">
+                    <div class="step-blob"><i class="fas fa-shield-virus"></i></div>
+                    <h4>Action</h4>
+                    <small>Block / Alert</small>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <h3>Project Developed By</h3>
+            <div class="team-grid">
+                <div class="member">M. Aqib Abdullah</div>
+                <div class="member">M. Omer Shareef</div>
+                <div class="member">M. Nuhaid Sami</div>
+            </div>
+            <p style="color: #666; margin-top: 20px;">
+                Department of CSE, Matrusri Engineering College (MCET)<br>
+                Under the Guidance of Mr. Shaik Rasool
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Particle Background Logic
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function createParticles() {
+            for (let i = 0; i < 80; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        createParticles();
+        animate();
+    </script>
+</body>
+</html>

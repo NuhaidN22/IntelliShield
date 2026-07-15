@@ -1,0 +1,46 @@
+intellishield/
+│
+├── capture/                    # Go code for packet capture
+│   ├── main.go                # Entry point
+│   ├── packet_capture.go      # Packet sniffing
+│   ├── feature_extractor.go   # Convert packets to features
+│   └── buffer.go              # Data buffering
+│
+├── ml/                        # Python ML models
+│   ├── models/
+│   │   ├── xgboost_model.py
+│   │   ├── random_forest.py
+│   │   ├── isolation_forest.py
+│   │   ├── lstm_model.py
+│   │   └── dbscan_cluster.py
+│   ├── train.py               # Training script
+│   ├── predict.py             # Real-time prediction
+│   └── ensemble.py            # Combine all models
+│
+├── api/                       # Go-Python communication
+│   ├── server.py              # Python ML API
+│   └── client.go              # Go API client
+│
+├── response/                  # Go code for blocking
+│   ├── blocker.go            # IP blocking logic
+│   ├── firewall.go           # Firewall integration
+│   └── alerter.go            # Alert system
+│
+├── dashboard/                 # Web interface
+│   ├── frontend/             # React dashboard
+│   └── backend/              # API server
+│
+├── data/                      # Training data
+│   └── CIC-IDS2017/          # Dataset
+│
+├── tests/                     # Testing
+│   ├── unit_tests/
+│   └── integration_tests/
+│
+├── docs/                      # Documentation
+│   └── architecture.md
+│
+└── docker/                    # Deployment
+    ├── Dockerfile.capture
+    ├── Dockerfile.ml
+    └── docker-compose.yml
